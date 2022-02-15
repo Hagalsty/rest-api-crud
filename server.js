@@ -1,11 +1,23 @@
-const http = require("http");
-const app = require("./app.js");
-const dotenv = require("dotenv");
+const express = require("express");
+const dotenv = require("dotenv").config();
+const connectDB = require("./src/config/db");
+const { errorHandler } = require("./src/middleware/errorMiddleware");
 
-dotenv.config();
+const port = process.env.PORT || 5544;
 
-const port = process.env.PORT;
+const app = express();
+connectDB();
 
-const server = http.createServer(app);
+const productRoutes = require("./src/routes/products");
+const orderRoutes = require("./src/routes/orders");
 
-server.listen(port);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.text());
+
+app.use("/api/products", productRoutes);
+app.use("/api/orders", orderRoutes);
+
+app.use(errorHandler);
+
+app.listen(port, () => console.log(`Server listen:::: ${port}`));
